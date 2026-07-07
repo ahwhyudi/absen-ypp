@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LeaveRequests extends Model
+class LeaveRequest extends Model
 {
     use HasFactory;
 
@@ -21,16 +21,21 @@ class LeaveRequests extends Model
         'approval_notes',
     ];
 
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
     /**
-     * Relasi ke karyawan yang mengajukan izin
+     * User yang mengajukan
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
-     * Relasi ke HRD/Manajer yang menyetujui izin
+     * User yang menyetujui
      */
     public function approver()
     {

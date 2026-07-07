@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Attendence;
+use App\Models\Attendance;
 use App\Models\LeaveRequests;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -53,7 +53,7 @@ class User extends Authenticatable
      */
     public function attendances()
     {
-        return $this->hasMany(Attendence::class);
+        return $this->hasMany(Attendance::class);
     }
 
     /**

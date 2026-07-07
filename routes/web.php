@@ -7,7 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
-use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\Staff\LeaveRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +35,6 @@ Route::get('/', function () {
     }
 
     return redirect()->route('login');
-
 });
 
 /*
@@ -51,7 +50,6 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', [LoginController::class, 'authenticate'])
         ->name('login.authenticate');
-
 });
 
 /*
@@ -84,7 +82,6 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])
                 ->name('dashboard');
-
         });
 
     /*
@@ -100,7 +97,6 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/dashboard', [ManagerDashboardController::class, 'index'])
                 ->name('dashboard');
-
         });
 
     /*
@@ -131,6 +127,11 @@ Route::middleware('auth')->group(function () {
                     Route::get('/history', [StaffDashboardController::class, 'history'])
                         ->name('history');
 
+                    Route::get('/leave', [StaffDashboardController::class, 'leave'])
+                        ->name('leave');
+
+                    Route::get('/leave-status', [StaffDashboardController::class, 'leaveStatus'])
+                        ->name('leave.status');
                 });
 
             /*
@@ -139,21 +140,15 @@ Route::middleware('auth')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            // Route::prefix('leave-request')
-            //     ->name('leave-request.')
-            //     ->group(function () {
+            Route::prefix('leave-request')
+                ->name('leave-request.')
+                ->group(function () {
 
-            //         Route::get('/', [LeaveRequestController::class, 'index'])
-            //             ->name('index');
+                    Route::get('/', [LeaveRequestController::class, 'index'])
+                        ->name('index');
 
-            //         Route::get('/create', [LeaveRequestController::class, 'create'])
-            //             ->name('create');
-
-            //         Route::post('/', [LeaveRequestController::class, 'store'])
-            //             ->name('store');
-
-            //     });
-
+                    Route::post('/', [LeaveRequestController::class, 'store'])
+                        ->name('store');
+                });
         });
-
 });

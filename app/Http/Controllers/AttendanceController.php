@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class AttendenceController extends Controller
+class AttendanceController extends Controller
 {
     /**
      * Halaman utama absensi
@@ -19,7 +19,7 @@ class AttendenceController extends Controller
 
         $today = Carbon::today()->toDateString();
 
-        $attendance = Attendence::where('user_id', $user->id)
+        $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('date', $today)
             ->first();
 
