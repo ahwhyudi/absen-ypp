@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendence;
-use App\Models\LeaveRequests;
+use App\Models\Attendance;
+use App\Models\LeaveRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,15 +21,15 @@ class DashboardController extends Controller
 
         $totalEmployee = User::role('Karyawan')->count();
 
-        $todayAttendance = Attendence::whereDate('date', $today)->count();
+        $todayAttendance = Attendance::whereDate('date', $today)->count();
 
-        $todayLate = Attendence::whereDate('date', $today)
+        $todayLate = Attendance::whereDate('date', $today)
             ->where('status_in', 'late')
             ->count();
 
-        $pendingLeave = LeaveRequests::where('status', 'pending')->count();
+        $pendingLeave = LeaveRequest::where('status', 'pending')->count();
 
-        $approvedLeave = LeaveRequests::where('status', 'approved')->count();
+        $approvedLeave = LeaveRequest::where('status', 'approved')->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $latestAttendences = Attendence::with('user')
+        $latestAttendences = Attendance::with('user')
             ->latest('date')
             ->latest('check_in')
             ->take(10)
@@ -45,7 +45,7 @@ class DashboardController extends Controller
 
         return view('dashboard.index', compact(
             'totalEmployee',
-            'todayAttendence',
+            'todayAttendance',
             'todayLate',
             'pendingLeave',
             'approvedLeave',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\LeaveRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -116,9 +117,37 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        return view('dashboard.staff.riwayat.index');
+        $month = $request->bulan ?? now()->format('Y-m');
+
+        $attendances = Attendance::where('user_id', auth()->id())
+            ->whereYear('date', Carbon::parse($month)->year)
+            ->whereMonth('date', Carbon::parse($month)->month)
+            ->latest('date')
+            ->get();
+
+        $stat = [
+            'total_hadir' => $attendances->count(),
+
+            'tepat_waktu' => $attendances
+                ->where('status_in', 'present')
+                ->count(),
+
+            'terlambat' => $attendances
+                ->where('status_in', 'late')
+                ->count(),
+
+            'sudah_pulang' => $attendances
+                ->whereNotNull('check_out')
+                ->count(),
+        ];
+
+        return view('dashboard.staff.riwayat.index', [
+            'attendances' => $attendances,
+            'stat' => $stat,
+            'filter_bulan' => $month,
+        ]);
     }
 
     public function leave()
@@ -128,6 +157,17 @@ class DashboardController extends Controller
 
     public function leaveStatus()
     {
-        return view('dashboard.staff.status-izin.index');
+        $leaveRequests = LeaveRequest::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        $pendingCount = $leaveRequests
+            ->where('status', 'pending')
+            ->count();
+
+        return view('dashboard.staff.status-izin.index', [
+            'leaveRequests' => $leaveRequests,
+            'pendingCount' => $pendingCount,
+        ]);
     }
 }

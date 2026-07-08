@@ -13,6 +13,8 @@ class Attendance extends Model
 
     protected $casts = [
         'date' => 'date',
+        'check_in' => 'datetime:H:i:s',
+        'check_out' => 'datetime:H:i:s',
     ];
 
 

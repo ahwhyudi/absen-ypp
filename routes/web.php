@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Auth\LoginController;
-
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\LeaveRequestController;
+use App\Http\Controllers\Admin\LeaveRequestController as AdminLeaveRequestController; 
+use App\Http\Controllers\Staff\StatusIzinController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,7 +82,21 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])
-                ->name('dashboard');
+                ->name('index');
+
+            Route::get('/staff', [StaffController::class, 'index'])
+                ->name('staff.index');   // name jadinya: admin.staff.index
+
+            Route::post('/staff', [StaffController::class, 'store'])
+                ->name('staff.store');   // name jadinya: admin.staff.store
+
+            Route::put('/staff/{user}', [StaffController::class, 'update'])->name('staff.update');
+
+            Route::delete('/staff/{user}', [StaffController::class, 'destroy'])
+                ->name('staff.destroy'); // name jadinya: admin.staff.destroy
+
+            Route::get('/izin', [AdminLeaveRequestController::class, 'index'])->name('izin.index');
+            Route::put('/izin/{leaveRequest}', [AdminLeaveRequestController::class, 'update'])->name('izin.update');
         });
 
     /*
@@ -130,7 +145,7 @@ Route::middleware('auth')->group(function () {
                     Route::get('/leave', [StaffDashboardController::class, 'leave'])
                         ->name('leave');
 
-                    Route::get('/leave-status', [StaffDashboardController::class, 'leaveStatus'])
+                    Route::get('/leave-status', [StatusIzinController::class, 'index'])
                         ->name('leave.status');
                 });
 

@@ -48,7 +48,7 @@ class LoginController extends Controller
 
             // Redirect sesuai role
             if ($user->hasRole('admin')) {
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.index');
             }
 
             if ($user->hasRole('manager')) {
