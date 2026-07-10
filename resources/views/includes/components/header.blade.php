@@ -17,10 +17,12 @@
                         <span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span> Hak Akses: {{auth()->user()->getRoleNames()->first()}}
                     </p>
                 </div>
-                <a href="#" class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-rose-500 transition-colors font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1"/></svg>
-                    <span class="hidden sm:inline">Keluar</span>
-                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </form>
             </div>
         </div>
     </header>

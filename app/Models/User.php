@@ -4,7 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Attendance;
-use App\Models\LeaveRequests;
+use App\Models\LeaveRequest;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -61,7 +61,7 @@ class User extends Authenticatable
      */
     public function leaveRequests()
     {
-        return $this->hasMany(LeaveRequests::class, 'user_id');
+        return $this->hasMany(LeaveRequest::class, 'user_id');
     }
 
     

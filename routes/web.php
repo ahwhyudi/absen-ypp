@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\LeaveRequestController as AdminLeaveRequestController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\LeaveRequestController;
-use App\Http\Controllers\Admin\LeaveRequestController as AdminLeaveRequestController; 
 use App\Http\Controllers\Staff\StatusIzinController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,7 +97,12 @@ Route::middleware('auth')->group(function () {
                 ->name('staff.destroy'); // name jadinya: admin.staff.destroy
 
             Route::get('/izin', [AdminLeaveRequestController::class, 'index'])->name('izin.index');
+
             Route::put('/izin/{leaveRequest}', [AdminLeaveRequestController::class, 'update'])->name('izin.update');
+
+            Route::get('/statistik', [StatisticController::class, 'index'])->name('statistik.index');
+
+            Route::get('/export', [AdminDashboardController::class, 'exportExcel'])->name('attendance.export');
         });
 
     /*
@@ -112,6 +118,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get('/dashboard', [ManagerDashboardController::class, 'index'])
                 ->name('dashboard');
+            Route::put('/izin/{leaveRequest}', [LeaveRequestController::class, 'update'])->name('izin.update');
         });
 
     /*

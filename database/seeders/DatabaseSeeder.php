@@ -16,14 +16,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Bikin 10 user acak (karena Factory udah diupdate, ini bakal jalan normal)
-        User::factory(10)->create();
+        // User::factory(10)->create();
 
-        // Bikin akun Test User bawaan Laravel (tambahin username-nya)
-        User::factory()->create([
-            'name' => 'Test User',
-            'username' => 'testuser', // <-- Tambahin baris ini
-            'email' => 'test@example.com',
-        ]);
+        // // Bikin akun Test User bawaan Laravel (tambahin username-nya)
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'username' => 'testuser', // <-- Tambahin baris ini
+        //     'email' => 'test@example.com',
+        // ]);
 
         // Panggil RoleSeeder yang udah kita buat khusus untuk Absensi
         $this->call([

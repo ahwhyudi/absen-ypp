@@ -17,6 +17,11 @@
                 <input type="text" id="edit-name" name="name" required
                     class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
             </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Username</label>
+                <input type="text" id="edit-username" name="username" required
+                    class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
+            </div>
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Email</label>

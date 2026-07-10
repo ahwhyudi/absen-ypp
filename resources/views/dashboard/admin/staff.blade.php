@@ -57,8 +57,16 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1.5">Password</label>
-                        <input type="password" name="password" placeholder="Minimal 6 karakter" required minlength="6"
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors">
+                        <div class="relative">
+
+                            <input type="password" name="password" id="reg-password" placeholder="Minimal 6 karakter"
+                                required minlength="6"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                            <button type="button" onclick="toggleRegPassword()"
+                                class="absolute right-3 top-3 text-gray-400 hover:text-amber-600">
+                                <i data-lucide="eye" id="reg-eye-icon" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div>
@@ -128,8 +136,8 @@
                                             @php
                                                 $color = match ($role->name) {
                                                     'admin' => 'bg-amber-50 text-amber-700 ring-amber-600/20',
-                                                    'manajer' => 'bg-blue-50 text-blue-700 ring-blue-600/20',
-                                                    default => 'bg-slate-50 text-slate-700 ring-slate-600/20',
+                                                    'manager' => 'bg-blue-50 text-blue-700 ring-blue-600/20',
+                                                    default => 'bg-green-50 text-green-700 ring-green-600/20',
                                                 };
                                             @endphp
                                             <span
@@ -144,8 +152,7 @@
 
                                     <td class="px-6 py-4 ActionsColumn">
                                         <div class="flex justify-center gap-2">
-                                            <button type="button"
-                                                onclick="openEditModal({id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}'})"
+                                            <button type="button" onclick="openEditModal(@js($user))"
                                                 class="text-blue-600 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors cursor-pointer"
                                                 title="Edit">
                                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
@@ -348,6 +355,7 @@
             // Isi data text
             document.getElementById('edit-name').value = user.name;
             document.getElementById('edit-email').value = user.email;
+            document.getElementById('edit-username').value = user.username;
 
             // LOGIKA SET ROLE:
             // User bisa punya banyak role di Spatie, tapi biasanya kita ambil role pertama (index 0)
@@ -367,7 +375,7 @@
                 contentBox.classList.add('scale-100');
             }, 1);
         }
-        6
+
 
         function closeEditModal() {
             const editModal = document.getElementById('edit-modal');
@@ -400,6 +408,29 @@
 
             // Wajib panggil ini agar Lucide me-render ulang icon yang atributnya baru diganti
             lucide.createIcons();
+        }
+    </script>
+    <script>
+        // Toggle Password Registrasi
+        function toggleRegPassword() {
+            const input = document.getElementById('reg-password');
+            const icon = document.getElementById('reg-eye-icon');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.setAttribute('data-lucide', input.type === 'password' ? 'eye' : 'eye-off');
+            lucide.createIcons();
+        }
+
+        // Modal Konfirmasi Hapus
+        function confirmDelete(id, name) {
+            if (confirm(`Yakin ingin menghapus staff: ${name}?`)) {
+                // Jalankan form delete via JS atau buat form hidden
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/staff/${id}`;
+                form.innerHTML = '@csrf @method('DELETE')';
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 

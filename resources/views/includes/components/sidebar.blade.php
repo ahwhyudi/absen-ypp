@@ -51,7 +51,6 @@
                     // Ngambil jumlah data izin yang statusnya masih 'pending'
                     $pendingIzin = \App\Models\LeaveRequest::where('status', 'pending')->count();
                 @endphp
-
                 {{-- Badge ini cuma bakal nongol kalau ada data yang belum diproses (> 0) --}}
                 @if ($pendingIzin > 0)
                     <span
@@ -62,7 +61,7 @@
             </a>
 
             {{-- Statistik --}}
-            <a href="#"
+            <a href="{{ route('admin.statistik.index') }}"
                 class="group flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 
                {{ request()->routeIs('admin.statistik.*') ? 'bg-amber-50 border-l-4 border-amber-500 text-amber-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-gray-50' }}">
                 <div

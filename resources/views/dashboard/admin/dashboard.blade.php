@@ -71,15 +71,24 @@
                     verifikasi.</p>
             </div>
 
-            <form class="w-full sm:w-auto">
-                <div class="relative w-full">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                        <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <form class="w-full sm:w-auto">
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <input type="month" name="filter_bulan" value="{{ $month }}" onchange="this.form.submit()"
+                            class="bg-gray-50 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 block w-full sm:w-[180px] ps-10 p-3 transition-all cursor-pointer hover:bg-gray-100 outline-none">
                     </div>
-                    <input type="month" name="filter_bulan" value="{{ $month }}" onchange="this.form.submit()"
-                        class="bg-gray-50 border border-gray-200 text-gray-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 block w-full sm:w-[220px] ps-10 p-3 transition-all cursor-pointer hover:bg-gray-100 outline-none">
-                </div>
-            </form>
+                </form>
+
+                <a href="
+                {{ route('admin.attendance.export', ['bulan' => $month]) }}
+                    "
+                    class="w-full sm:w-auto bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold py-3 px-4 rounded-xl text-sm transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-sm">
+                    <i data-lucide="sheet" class="w-4 h-4"></i> Export Excel
+                </a>
+            </div>
         </div>
 
         {{-- TAMPILAN MOBILE (Hanya muncul di layar < 1024px) --}}
@@ -288,7 +297,7 @@
                                             <div
                                                 class="w-10 h-10 rounded-lg overflow-hidden ring-1 ring-gray-200 bg-gray-50 hover:ring-2 hover:ring-emerald-400 hover:shadow-md transition-all cursor-zoom-in">
                                                 @if ($attendance->photo_in)
-                                                    <img src="{{ asset('storage/' . $attendance->photo_in) }}"
+                                                    <img src="{{ asset('storage/attendance/' . $attendance->photo_in) }}"
                                                         class="w-full h-full object-cover">
                                                 @else
                                                     <div
@@ -307,7 +316,7 @@
                                             <div
                                                 class="w-10 h-10 rounded-lg overflow-hidden ring-1 ring-gray-200 bg-gray-50 hover:ring-2 hover:ring-amber-400 hover:shadow-md transition-all cursor-zoom-in">
                                                 @if ($attendance->photo_out)
-                                                    <img src="{{ asset('storage/' . $attendance->photo_out) }}"
+                                                    <img src="{{ asset('storage/attendance/' . $attendance->photo_out) }}"
                                                         class="w-full h-full object-cover">
                                                 @else
                                                     <div

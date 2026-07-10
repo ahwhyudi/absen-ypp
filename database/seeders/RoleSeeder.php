@@ -18,23 +18,33 @@ class RoleSeeder extends Seeder
 
         // 2. Buat satu akun untuk Super Admin
         $admin = User::create([
-            'name' => 'Super Admin',
-            'username' => 'admin_super',
-            'email' => 'admin@perusahaan.com',
-            'password' => Hash::make('rahasia123'), // Jangan lupa diganti kalau mau rilis
+            'name' => 'Admin',
+            'username' => 'admin1',
+            'email' => 'admin1@perusahaan.com',
+            'password' => Hash::make('password'), // Jangan lupa diganti kalau mau rilis
         ]);
 
         // 3. Masukkan akun tersebut ke role 'admin'
         $admin->assignRole('admin');
         
         // 4. (Opsional) Bikin contoh akun Karyawan
-        $karyawan = User::create([
-            'name' => 'Udin Petot',
-            'username' => 'udin_absen',
-            'email' => 'udin@perusahaan.com',
-            'password' => Hash::make('password123'),
-        ]);
+        // $karyawan = User::create([
+        //     'name' => 'staff',
+        //     'username' => 'staff1',
+        //     'email' => 'staff1@perusahaan.com',
+        //     'password' => Hash::make('password'),
+        // ]);
         
-        $karyawan->assignRole('employee');
+        // $karyawan->assignRole('employee');
+
+
+        // $karyawan = User::create([
+        //     'name' => 'manager',
+        //     'username' => 'manager1',
+        //     'email' => 'manager1@perusahaan.com',
+        //     'password' => Hash::make('password'),
+        // ]);
+        
+        // $karyawan->assignRole('manager');
     }
 }

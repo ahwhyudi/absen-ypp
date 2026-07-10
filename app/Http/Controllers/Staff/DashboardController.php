@@ -21,102 +21,112 @@ class DashboardController extends Controller
         return view('dashboard.staff.index', compact('attendance'));
     }
 
+    // 
     public function store(Request $request)
     {
         $request->validate([
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'image' => 'required',
-            'tipe_absen' => 'required'
+            'latitude'   => 'required',
+            'longitude'  => 'required',
+            'image'      => 'required',
+            'tipe_absen' => 'required|in:masuk,pulang'
         ]);
 
         $user = auth()->user();
+        $now = now(); // Pastikan timezone app.php sudah 'Asia/Jakarta'
 
-        $attendance = Attendance::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'date' => today(),
-            ]
-        );
+        // ==========================================
+        // LOGIKA RESET JAM 2 PAGI (SHIFT CUT-OFF)
+        // ==========================================
+        // Kita kurangi waktu sekarang sebanyak 2 jam. 
+        // Jadi kalau staf absen jam 01:30 pagi (tanggal 2), sistem masih menganggap itu absen untuk tanggal 1.
+        $logicalDate = $now->copy()->subHours(2)->toDateString();
+        $currentTime = $now->format('H:i:s');
 
-        /*
-    |--------------------------------------------------------------------------
-    | Simpan Foto
-    |--------------------------------------------------------------------------
-    */
+        $attendance = Attendance::firstOrCreate([
+            'user_id' => $user->id,
+            'date'    => $logicalDate,
+        ]);
 
+        // --- Proses Gambar ---
         $image = $request->image;
-
         $image = str_replace('data:image/jpeg;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
-
         $imageName = Str::uuid() . '.jpg';
+        
+        Storage::disk('public')->put('attendance/' . $imageName, base64_decode($image));
 
-        Storage::disk('public')->put(
-            'attendance/' . $imageName,
-            base64_decode($image)
-        );
-
-        /*
-    |--------------------------------------------------------------------------
-    | Absen Masuk
-    |--------------------------------------------------------------------------
-    */
-
+        // ==========================================
+        // ABSEN MASUK
+        // ==========================================
         if ($request->tipe_absen == 'masuk') {
+            
+            // Validasi: Cuma boleh 1x absen masuk
+            if ($attendance->check_in !== null) {
+                return response()->json([
+                    'status' => 'error',
+                    'pesan'  => 'Anda sudah melakukan absen masuk hari ini.'
+                ], 400); // Bad Request
+            }
+
+            // Logika Terlambat (Di atas 08:00 = late)
+            $statusIn = ($currentTime > '08:00:00') ? 'late' : 'present';
 
             $attendance->update([
-
-                'check_in' => now()->format('H:i:s'),
-
-                'latitude_in' => $request->latitude,
-
+                'check_in'     => $currentTime,
+                'status_in'    => $statusIn,
+                'latitude_in'  => $request->latitude,
                 'longitude_in' => $request->longitude,
-
-                'photo_in' => $imageName,
-
-                'ip_address' => $request->ip(),
-
-                'user_agent' => $request->userAgent()
-
+                'photo_in'     => $imageName,
+                'ip_address'   => $request->ip(),
+                'user_agent'   => $request->userAgent()
             ]);
 
             return response()->json([
-
                 'status' => 'sukses',
-
-                'pesan' => 'Absen masuk berhasil.'
-
+                'pesan'  => 'Absen masuk berhasil (' . $statusIn . ').'
             ]);
         }
 
-        /*
-    |--------------------------------------------------------------------------
-    | Absen Pulang
-    |--------------------------------------------------------------------------
-    */
+        // ==========================================
+        // ABSEN PULANG
+        // ==========================================
+        if ($request->tipe_absen == 'pulang') {
+            
+            // Validasi: Harus absen masuk dulu sebelum bisa pulang
+            if ($attendance->check_in === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'pesan'  => 'Anda harus absen masuk terlebih dahulu!'
+                ], 400);
+            }
 
-        $attendance->update([
+            // Validasi: Cuma boleh 1x absen pulang
+            if ($attendance->check_out !== null) {
+                return response()->json([
+                    'status' => 'error',
+                    'pesan'  => 'Anda sudah melakukan absen pulang hari ini.'
+                ], 400);
+            }
 
-            'check_out' => now()->format('H:i:s'),
+            // Logika Pulang Cepat (Di bawah 17:00 = early_leave, Sisanya = on_time/null)
+            // Lu bisa ganti 'on_time' jadi null kalau di database boleh null
+            $statusOut = ($currentTime < '17:00:00') ? 'early_leave' : 'on_time';
 
-            'latitude_out' => $request->latitude,
+            $attendance->update([
+                'check_out'     => $currentTime,
+                'status_out'    => $statusOut,
+                'latitude_out'  => $request->latitude,
+                'longitude_out' => $request->longitude,
+                'photo_out'     => $imageName,
+                'note_out'      => $request->note_out, // Optional: Catatan pulang
+            ]);
 
-            'longitude_out' => $request->longitude,
-
-            'photo_out' => $imageName
-
-        ]);
-
-        return response()->json([
-
-            'status' => 'sukses',
-
-            'pesan' => 'Absen pulang berhasil.'
-
-        ]);
+            return response()->json([
+                'status' => 'sukses',
+                'pesan'  => 'Absen pulang berhasil.'
+            ]);
+        }
     }
-
     public function history(Request $request)
     {
         $month = $request->bulan ?? now()->format('Y-m');
