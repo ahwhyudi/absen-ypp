@@ -18,7 +18,6 @@ class DashboardController extends Controller
                                  ->where('status', 'pending')
                                  ->orderBy('created_at', 'asc')
                                  ->get();
-
         // 2. Ambil data absensi 50 terakhir milik user dengan role 'employee'
         // Karena ini manager, asumsikan dia melihat semua absensi employee (karyawan)
         $log_tim = Attendance::with('user')

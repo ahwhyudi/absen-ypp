@@ -11,8 +11,8 @@
     class="fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 shadow-xl z-50 flex flex-col transform transition-transform duration-300 -translate-x-full lg:translate-x-0">
 
     <div class="flex-1 overflow-y-auto p-5 mt-14 lg:mt-0">
-        <p class="text-[11px] uppercase tracking-widest text-gray-400 mb-4 px-2">Main Menu</p>
-
+        <img src="{{ asset('images/ypp.png') }}" alt="Logo YPP" class="w-25 h-23 mx-auto justify-center mb-2">
+        {{-- <p class="text-[11px] uppercase tracking-widest text-gray-400 mb-4 px-2">Main Menu</p> --}}
         <nav class="space-y-1.5">
             {{-- Dashboard --}}
             <a href="{{ route('admin.index') }}"

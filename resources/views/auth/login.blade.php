@@ -20,7 +20,10 @@
 
                 <div class="w-20 h-20 rounded-full bg-amber-100 mx-auto flex items-center justify-center">
 
-                    <i data-lucide="scan-face" class="w-10 h-10 text-amber-500"></i>
+                    <i  class=" w-18 h-18 text-amber-500">
+
+                        <img src="{{ asset('images/ypp.png') }}" alt="Logo Aplikasi" >
+                    </i>
 
                 </div>
 

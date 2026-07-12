@@ -2,7 +2,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-28 h-10 flex items-center justify-center overflow-hidden shrink-0">
-                    <img  alt="Logo YPP" class="object-contain w-full h-full"
+                    <img src="{{ asset('images/ypp.png') }}"  alt="Logo YPP" class="object-contain w-full h-full"
                          onerror="this.outerHTML='<div class=\'flex items-center justify-center w-10 h-10 bg-amber-500 rounded-xl text-white font-extrabold text-lg\'>Y</div>'">
                 </div>
                 <div class="border-l border-gray-200 pl-3 hidden sm:block">

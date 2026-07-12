@@ -29,7 +29,7 @@
                 <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
-            </form>
+            </form>6
         </div>
     </header>
 

@@ -14,14 +14,34 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $attendance = Attendance::where('user_id', auth()->id())
-            ->whereDate('check_in', Carbon::today())
+        $user = auth()->user();
+        $now = now();
+
+        // 1. Cek apakah ada absen KEMARIN yang belum pulang (untuk yang lembur dini hari)
+        $yesterdayAttendance = Attendance::where('user_id', $user->id)
+            ->where('date', $now->copy()->subDay()->toDateString())
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
             ->first();
+
+        // 2. Jika ada absen kemarin yang menggantung, tampilkan itu di layar!
+        if ($yesterdayAttendance) {
+            $attendance = $yesterdayAttendance;
+        } else {
+            // 3. Jika tidak ada, cari data absensi berdasarkan logicalDate hari ini
+            $logicalDate = ($now->hour < 2)
+                ? $now->copy()->subDay()->toDateString()
+                : $now->toDateString();
+
+            $attendance = Attendance::where('user_id', $user->id)
+                ->where('date', $logicalDate)
+                ->first();
+        }
 
         return view('dashboard.staff.index', compact('attendance'));
     }
 
-    // 
+
     public function store(Request $request)
     {
         $request->validate([
@@ -32,44 +52,52 @@ class DashboardController extends Controller
         ]);
 
         $user = auth()->user();
-        $now = now(); // Pastikan timezone app.php sudah 'Asia/Jakarta'
-
-        // ==========================================
-        // LOGIKA RESET JAM 2 PAGI (SHIFT CUT-OFF)
-        // ==========================================
-        // Kita kurangi waktu sekarang sebanyak 2 jam. 
-        // Jadi kalau staf absen jam 01:30 pagi (tanggal 2), sistem masih menganggap itu absen untuk tanggal 1.
-        $logicalDate = $now->copy()->subHours(2)->toDateString();
+        $now = now();
         $currentTime = $now->format('H:i:s');
 
-        $attendance = Attendance::firstOrCreate([
-            'user_id' => $user->id,
-            'date'    => $logicalDate,
-        ]);
+        // 1. Cek dulu, apakah user punya absen MASUK kemarin yang BELUM PULANG?
+        // (Berguna kalau user lembur sampai lewat jam 2 pagi)
+        $yesterdayAttendance = Attendance::where('user_id', $user->id)
+            ->where('date', $now->copy()->subDay()->toDateString())
+            ->whereNotNull('check_in')
+            ->whereNull('check_out')
+            ->first();
 
-        // --- Proses Gambar ---
-        $image = $request->image;
-        $image = str_replace('data:image/jpeg;base64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-        $imageName = Str::uuid() . '.jpg';
-        
-        Storage::disk('public')->put('attendance/' . $imageName, base64_decode($image));
+        // 2. Tentukan mau pakai data absen yang mana
+        if ($request->tipe_absen == 'pulang' && $yesterdayAttendance) {
+            // Kalau dia mau absen pulang dan ternyata absen kemarin belum ditutup, 
+            // maka gabungkan ke absen kemarin walau sudah jam 3 / jam 4 pagi!
+            $attendance = $yesterdayAttendance;
+        } else {
+            // Jika tidak ada tanggungan absen kemarin, gunakan aturan normal (cut-off jam 02:00)
+            $logicalDate = ($now->hour < 2)
+                ? $now->copy()->subDay()->toDateString()
+                : $now->toDateString();
+
+            $attendance = Attendance::firstOrCreate([
+                'user_id' => $user->id,
+                'date'    => $logicalDate,
+            ]);
+        }
 
         // ==========================================
         // ABSEN MASUK
         // ==========================================
         if ($request->tipe_absen == 'masuk') {
-            
-            // Validasi: Cuma boleh 1x absen masuk
+
+            // 1. Validasi DULU sebelum proses gambar!
             if ($attendance->check_in !== null) {
                 return response()->json([
                     'status' => 'error',
-                    'pesan'  => 'Anda sudah melakukan absen masuk hari ini.'
-                ], 400); // Bad Request
+                    'pesan'  => 'Anda sudah melakukan absen masuk untuk sesi hari ini.'
+                ], 400);
             }
 
-            // Logika Terlambat (Di atas 08:00 = late)
-            $statusIn = ($currentTime > '08:00:00') ? 'late' : 'present';
+            // 2. Upload Gambar setelah dipastikan boleh absen
+            $imageName = $this->uploadAttendanceImage($request->image);
+
+            // 3. Logika Terlambat (Di atas 10:00 = late)
+            $statusIn = ($currentTime > '10:00:00') ? 'late' : 'present';
 
             $attendance->update([
                 'check_in'     => $currentTime,
@@ -91,8 +119,8 @@ class DashboardController extends Controller
         // ABSEN PULANG
         // ==========================================
         if ($request->tipe_absen == 'pulang') {
-            
-            // Validasi: Harus absen masuk dulu sebelum bisa pulang
+
+            // 1. Validasi DULU sebelum proses gambar!
             if ($attendance->check_in === null) {
                 return response()->json([
                     'status' => 'error',
@@ -100,16 +128,17 @@ class DashboardController extends Controller
                 ], 400);
             }
 
-            // Validasi: Cuma boleh 1x absen pulang
             if ($attendance->check_out !== null) {
                 return response()->json([
                     'status' => 'error',
-                    'pesan'  => 'Anda sudah melakukan absen pulang hari ini.'
+                    'pesan'  => 'Anda sudah melakukan absen pulang untuk sesi hari ini.'
                 ], 400);
             }
 
-            // Logika Pulang Cepat (Di bawah 17:00 = early_leave, Sisanya = on_time/null)
-            // Lu bisa ganti 'on_time' jadi null kalau di database boleh null
+            // 2. Upload Gambar setelah dipastikan boleh absen
+            $imageName = $this->uploadAttendanceImage($request->image);
+
+            // 3. Logika Pulang Cepat
             $statusOut = ($currentTime < '17:00:00') ? 'early_leave' : 'on_time';
 
             $attendance->update([
@@ -118,7 +147,7 @@ class DashboardController extends Controller
                 'latitude_out'  => $request->latitude,
                 'longitude_out' => $request->longitude,
                 'photo_out'     => $imageName,
-                'note_out'      => $request->note_out, // Optional: Catatan pulang
+                'note_out'      => $request->note_out,
             ]);
 
             return response()->json([
@@ -126,6 +155,20 @@ class DashboardController extends Controller
                 'pesan'  => 'Absen pulang berhasil.'
             ]);
         }
+    }
+
+    /**
+     * Helper function untuk upload gambar supaya kode lebih bersih
+     */
+    private function uploadAttendanceImage($base64Image)
+    {
+        $image = str_replace('data:image/jpeg;base64,', '', $base64Image);
+        $image = str_replace(' ', '+', $image);
+        $imageName = Str::uuid() . '.jpg';
+
+        Storage::disk('public')->put('attendance/' . $imageName, base64_decode($image));
+
+        return $imageName;
     }
     public function history(Request $request)
     {
