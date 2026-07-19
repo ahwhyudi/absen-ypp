@@ -103,6 +103,15 @@ Route::middleware('auth')->group(function () {
             Route::get('/statistik', [StatisticController::class, 'index'])->name('statistik.index');
 
             Route::get('/export', [AdminDashboardController::class, 'exportExcel'])->name('attendance.export');
+
+            // =========================================================
+            // ROUTE ABSENSI BARU (Sudah Disesuaikan)
+            // =========================================================
+            Route::put('/attendance/{id}', [AdminDashboardController::class, 'update'])
+                ->name('attendance.update'); // name jadinya: admin.attendance.update
+
+            Route::delete('/attendance/{id}', [AdminDashboardController::class, 'destroy'])
+                ->name('attendance.destroy'); // name jadinya: admin.attendance.destroy
         });
 
     /*
@@ -173,4 +182,13 @@ Route::middleware('auth')->group(function () {
                         ->name('store');
                 });
         });
+
+    // Route sementara untuk clear semua cache di Hostinger
+    Route::get('/bersihkan-server', function () {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        return 'Semua cache Hostinger berhasil dibersihkan! Silakan cek web kembali.';
+    });
 });

@@ -207,6 +207,7 @@
                             <th class="px-6 py-5">Jam Pulang</th>
                             <th class="px-6 py-5">Lokasi GPS</th>
                             <th class="px-6 py-5 text-center">Foto Verifikasi</th>
+                            <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-sm">
@@ -331,6 +332,51 @@
 
                                     </div>
                                 </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    @php
+                                        $jabatan =
+                                            $attendance->user->roles->first()->name ??
+                                            ($attendance->user->jabatan ?? 'Staff');
+                                    @endphp
+                                    <div class="flex items-center justify-center gap-2">
+                                        {{-- Tombol Edit --}}
+                                        <button type="button"
+                                            onclick="openEditModal(
+                '{{ $attendance->id }}',
+                '{{ addslashes($attendance->user->name) }}',
+                '{{ addslashes(ucfirst($jabatan)) }}',
+                '{{ $attendance->check_in }}',
+                '{{ $attendance->check_out }}',
+                '{{ $attendance->latitude_in }}',
+                '{{ $attendance->longitude_in }}',
+                '{{ $attendance->latitude_out }}',
+                '{{ $attendance->longitude_out }}'
+            )"
+                                            class="p-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition-colors cursor-pointer"
+                                            title="Edit Data">
+                                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        </button>
+
+                                        {{-- Tombol Hapus --}}
+                                        <form action="{{ route('admin.attendance.destroy', $attendance->id) }}"
+                                            method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?');"
+                                            class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            {{-- Tombol Hapus Baru --}}
+                                            <button type="button"
+                                                onclick="openDeleteModal(
+                '{{ $attendance->id }}',
+                '{{ addslashes($attendance->user->name) }}',
+                '{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}'
+            )"
+                                                class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl transition-colors cursor-pointer"
+                                                title="Hapus Data">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
@@ -359,6 +405,7 @@
                 </div>
             </div>
         @endif
-
+        @include('components.delete-attendance')
+        @include('components.edit-attendance')
     </div>
 @endsection
