@@ -23,15 +23,15 @@ Route::get('/', function () {
 
         $user = auth()->user();
 
-        if ($user->hasRole('Admin')) {
+        if ($user->hasRole('admin')) {
             return redirect()->route('dashboard.admin');
         }
 
-        if ($user->hasRole('Manager')) {
+        if ($user->hasRole('manager')) {
             return redirect()->route('dashboard.manager');
         }
 
-        if ($user->hasRole('Staff')) {
+        if ($user->hasRole('employee')) {
             return redirect()->route('dashboard.staff');
         }
     }
